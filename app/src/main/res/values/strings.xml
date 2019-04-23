@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Rhino</string>
+    <string name="title_activity_exercise_picker">ExercisePickerActivity</string>
+</resources>
