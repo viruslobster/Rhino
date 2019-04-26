@@ -50,6 +50,7 @@ class LoadingActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks
             // start activity
             RhinoApi.setCredentials(credential)
             val intent = Intent(this, ExercisePickerActivity::class.java)
+            //val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
     }

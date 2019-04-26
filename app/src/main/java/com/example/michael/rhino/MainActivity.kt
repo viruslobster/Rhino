@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.michael.rhino.api.Exercise
 import com.example.michael.rhino.api.RhinoApi
@@ -18,6 +19,7 @@ import kotlinx.coroutines.launch
 
 
 private const val REQUEST_AUTHORIZATION = 1001
+const val EXERCISE_NAME = "exercise_name"
 class MainActivity : AppCompatActivity() {
     private val job = Job()
     private val scope = CoroutineScope(Dispatchers.Main + job)
@@ -34,17 +36,25 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         api = RhinoApi.instance
+
         exerciseNameEditText = findViewById(R.id.exerciseNameEditText)
         repsEditText = findViewById(R.id.repsEditText)
         weightEditText = findViewById(R.id.weightEditText)
         textView = findViewById(R.id.textView)
+
+        exerciseNameEditText.setText(intent.getStringExtra(EXERCISE_NAME) ?: "")
     }
 
     fun addSet(view: View) {
-        val reps = repsEditText.text.toString().toInt()
-        val weight = weightEditText.text.toString().toDouble()
-        exerciseSets.add(listOf(reps, weight))
-        updateTextView()
+        val reps = repsEditText.text.toString().toIntOrNull()
+        val weight = weightEditText.text.toString().toDoubleOrNull()
+        if (reps == null || weight == null) {
+            Toast.makeText(this, "Please specify reps and weight", Toast.LENGTH_SHORT).show()
+
+        } else {
+            exerciseSets.add(listOf(reps, weight))
+            updateTextView()
+        }
     }
 
     fun removeSet(view: View) {
@@ -55,7 +65,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun finish(view: View) {
-        getResultsFromApi()
+        if (exerciseSets.size == 0) {
+            Toast.makeText(this, "Add at least one set", Toast.LENGTH_SHORT).show()
+        } else {
+            getResultsFromApi()
+        }
     }
 
     fun updateTextView() {

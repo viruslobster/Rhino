@@ -38,10 +38,16 @@ class ExercisePickerActivity : AppCompatActivity() {
         fetchExercises()
     }
 
+    override fun onResume() {
+        super.onResume()
+        //fetchExercises()
+    }
+
 
     private fun fetchExercises() {
         scope.launch {
             try {
+                excercises.clear()
                 excercises.addAll(api.getExercises())
                 viewAdapter.notifyDataSetChanged()
             } catch (e: UserRecoverableAuthIOException) {
