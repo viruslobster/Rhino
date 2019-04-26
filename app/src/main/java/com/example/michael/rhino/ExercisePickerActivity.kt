@@ -2,6 +2,7 @@ package com.example.michael.rhino
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.michael.rhino.api.RhinoApi
@@ -10,6 +11,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+
+
 
 private const val REQUEST_AUTHORIZATION = 1000
 
@@ -34,6 +37,12 @@ class ExercisePickerActivity : AppCompatActivity() {
         recyclerView = findViewById<RecyclerView>(R.id.exercise_picker_recycler_view).apply {
             layoutManager = viewManager
             adapter = viewAdapter
+
+            val dividerItemDecoration = DividerItemDecoration(
+                context,
+                LinearLayoutManager.VERTICAL
+            )
+            addItemDecoration(dividerItemDecoration)
         }
         fetchExercises()
     }
