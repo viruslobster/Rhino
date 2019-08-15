@@ -3,7 +3,9 @@ package com.example.michael.rhino
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.text.InputType
 import android.view.View
+import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
@@ -19,17 +21,21 @@ import kotlinx.coroutines.launch
 
 
 private const val REQUEST_AUTHORIZATION = 1001
+private const val GET_BARWELL_WEIGHT = 1005
+const val BARBELL_EXTRA = "barbell"
 const val EXERCISE_NAME = "exercise_name"
 class MainActivity : AppCompatActivity() {
     private val job = Job()
     private val scope = CoroutineScope(Dispatchers.Main + job)
     private val exerciseSets = mutableListOf<List<Any>>()
+    private var barbell = Barbell(0, 0, 0, 0, 0 ,0)
 
     private lateinit var api: RhinoApi
     private lateinit var exerciseNameEditText: EditText
     private lateinit var repsEditText: EditText
     private lateinit var weightEditText: EditText
     private lateinit var textView: TextView
+    private lateinit var checkBox: CheckBox
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,8 +47,28 @@ class MainActivity : AppCompatActivity() {
         repsEditText = findViewById(R.id.repsEditText)
         weightEditText = findViewById(R.id.weightEditText)
         textView = findViewById(R.id.textView)
+        checkBox = findViewById(R.id.checkBox)
 
         exerciseNameEditText.setText(intent.getStringExtra(EXERCISE_NAME) ?: "")
+
+        weightEditText.setOnFocusChangeListener { view, b ->
+            if (view.isFocused && checkBox.isChecked) setWeight(view)
+        }
+        weightEditText.setOnClickListener {
+            if (checkBox.isChecked)
+                setWeight(it)
+        }
+        weightEditText.setRawInputType(InputType.TYPE_NULL)
+        weightEditText.setTextIsSelectable(true)
+
+        checkBox.setOnCheckedChangeListener { compoundButton, b ->
+            if (b) {
+                weightEditText.setRawInputType(InputType.TYPE_NULL)
+                weightEditText.setTextIsSelectable(true)
+            } else {
+                weightEditText.setRawInputType(InputType.TYPE_CLASS_NUMBER)
+            }
+        }
     }
 
     fun addSet(view: View) {
@@ -70,6 +96,12 @@ class MainActivity : AppCompatActivity() {
         } else {
             getResultsFromApi()
         }
+    }
+
+    fun setWeight(view: View) {
+        intent = Intent(this, WeightSelectorActivity::class.java)
+        intent.putExtra(BARBELL_EXTRA, barbell)
+        startActivityForResult(intent, GET_BARWELL_WEIGHT)
     }
 
     fun updateTextView() {
@@ -102,6 +134,13 @@ class MainActivity : AppCompatActivity() {
             REQUEST_AUTHORIZATION -> {
                 if (resultCode == Activity.RESULT_OK) {
                     getResultsFromApi()
+                }
+            }
+
+            GET_BARWELL_WEIGHT -> {
+                if (resultCode == Activity.RESULT_OK && data != null) {
+                    barbell = data.getSerializableExtra(BARBELL_EXTRA) as Barbell
+                    weightEditText.setText(barbell.weight().toString())
                 }
             }
         }
